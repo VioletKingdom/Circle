@@ -16,3 +16,20 @@ Circle (Backend): a Geo-index and Image Recognition based Social Network
 - Used ElasticSearch (GCE) to provide geo-location based search functions such that users can search nearby posts within a distance (e.g. 200km)
 - Utilized Google Dataflow to dump daily posts to a BigQuery table and perform offline analysis (keyword based spam detection)
 - Used Google Cloud ML API and TensorFlow to train a face detection model and integrate with the Go service.
+
+These are the pictures show how the webpages look like.
+You can register, log in and post what you want to post.
+
+![alt text](https://i.ibb.co/10xCKyD/Capture12.jpg)
+
+![alt text](https://i.ibb.co/GHhsbxm/Capture8.jpg)
+
+![alt text](https://i.ibb.co/mC2txPj/Capture7.jpg)
+
+![alt text](https://i.ibb.co/PcpdhL3/Capture9.jpg)
+
+For the images posts, the webpage can distinguish people faces.
+
+![alt text](https://i.ibb.co/f8S76Qj/Capture10.jpg)
+
+![alt text](https://i.ibb.co/VWZGN4Z/Capture11.jpg)
