@@ -11,7 +11,9 @@ import (
     "time"
 
     jwt "github.com/dgrijalva/jwt-go"
-    "github.com/olivere/elastic"
+   // "github.com/olivere/elastic"
+    elastic "gopkg.in/olivere/elastic.v6"
+
 )
 
 const (
