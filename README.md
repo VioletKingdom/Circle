@@ -28,6 +28,7 @@ You can register, log in and post what you want to post.
 
 ![alt text](https://i.ibb.co/PcpdhL3/Capture9.jpg)
 
+
 For the images posts, the webpage can distinguish people faces.
 
 ![alt text](https://i.ibb.co/f8S76Qj/Capture10.jpg)
