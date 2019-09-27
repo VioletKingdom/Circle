@@ -11,10 +11,14 @@ import (
     "strconv"
      "context"
      "cloud.google.com/go/bigtable"
+     "path/filepath"
+
 
 
     "cloud.google.com/go/storage"
-    "github.com/olivere/elastic"
+  //  "github.com/olivere/elastic"
+    elastic "gopkg.in/olivere/elastic.v6"
+
     "github.com/pborman/uuid"
     "github.com/gorilla/mux"
     
@@ -43,7 +47,26 @@ type Post struct {
     Message  string   `json:"message"`
     Location Location `json:"location"`
     Url      string   `json:"url"`
+    Type     string   `json:"type"`
+    Face     float64  `json:"face"`
+
 }
+
+var (
+  mediaTypes = map[string]string{
+     ".jpeg": "image",
+     ".jpg":  "image",
+     ".gif":  "image",
+     ".png":  "image",
+     ".mov":  "video",
+     ".mp4":  "video",
+     ".avi":  "video",
+     ".flv":  "video",
+     ".wmv":  "video",
+  }
+)
+
+
 
 func main() {
     fmt.Println("started-service")
@@ -62,8 +85,10 @@ func main() {
     
     r := mux.NewRouter()
     
-     r.Handle("/post", jwtMiddleware.Handler(http.HandlerFunc(handlerPost))).Methods("POST", "OPTIONS")
+   r.Handle("/post", jwtMiddleware.Handler(http.HandlerFunc(handlerPost))).Methods("POST", "OPTIONS")
    r.Handle("/search", jwtMiddleware.Handler(http.HandlerFunc(handlerSearch))).Methods("GET", "OPTIONS")
+   r.Handle("/cluster", jwtMiddleware.Handler(http.HandlerFunc(handlerCluster))).Methods("GET", "OPTIONS")
+
    r.Handle("/signup", http.HandlerFunc(handlerSignup)).Methods("POST", "OPTIONS")
    r.Handle("/login", http.HandlerFunc(handlerLogin)).Methods("POST", "OPTIONS")
 
@@ -120,6 +145,26 @@ func handlerPost(w http.ResponseWriter, r *http.Request) {
         return
     }
     p.Url = attrs.MediaLink
+	
+        file, header, _ := r.FormFile("image")
+        suffix := filepath.Ext(header.Filename)
+        if t, ok := mediaTypes[suffix]; ok {
+                p.Type = t
+        } else {
+                p.Type = "unknown"
+        }
+        if suffix == ".jpeg" {
+                if score, err := annotate(file); err != nil {
+                        http.Error(w, "Failed to annotate the image", http.StatusInternalServerError)
+                        fmt.Printf("Failed to annotate the image %v\n", err)
+                        return
+                } else {
+                        p.Face = score
+                }
+        } else {
+                 p.Face = 0.0
+        }
+
 
     err = saveToES(p, id)
     if err != nil {
@@ -185,6 +230,12 @@ func handlerSearch(w http.ResponseWriter, r *http.Request) {
     if val := r.URL.Query().Get("range"); val != "" {
         ran = val + "km"
     }
+	
+       query := elastic.NewGeoDistanceQuery("location")
+        query = query.Distance(ran).Lat(lat).Lon(lon)
+
+        posts, err := readFromES(query)
+
 
     posts, err := readFromES(lat, lon, ran)
     if err != nil {
@@ -202,6 +253,39 @@ func handlerSearch(w http.ResponseWriter, r *http.Request) {
 
     w.Write(js)
 }
+
+
+func handlerCluster(w http.ResponseWriter, r *http.Request) {
+        fmt.Println("Received one cluster request")
+
+        w.Header().Set("Content-Type", "application/json")
+        w.Header().Set("Access-Control-Allow-Origin", "*")
+        w.Header().Set("Access-Control-Allow-Headers", "Content-Type,Authorization")
+
+        if r.Method == "OPTIONS" {
+                return
+        }
+
+        term := r.URL.Query().Get("term")
+        query := elastic.NewRangeQuery(term).Gte(0.9)
+
+        posts, err := readFromES(query)
+        if err != nil {
+                http.Error(w, "Failed to read post from ElasticSearch", http.StatusInternalServerError)
+                fmt.Printf("Failed to read post from ElasticSearch %v.\n", err)
+                return
+        }
+
+        js, err := json.Marshal(posts)
+        if err != nil {
+                http.Error(w, "Failed to parse post object", http.StatusInternalServerError)
+                fmt.Printf("Failed to parse post object %v\n", err)
+                return
+        }
+
+        w.Write(js)
+}
+
 
 func createIndexIfNotExist() {
     client, err := elastic.NewClient(elastic.SetURL(ES_URL), elastic.SetSniff(false))
@@ -269,14 +353,14 @@ func saveToES(post *Post, id string) error {
     return nil
 }
 
-func readFromES(lat, lon float64, ran string) ([]Post, error) {
+func readFromES(query elastic.Query) ([]Post, error) {
     client, err := elastic.NewClient(elastic.SetURL(ES_URL), elastic.SetSniff(false))
     if err != nil {
         return nil, err
     }
 
-    query := elastic.NewGeoDistanceQuery("location")
-    query = query.Distance(ran).Lat(lat).Lon(lon)
+  //  query := elastic.NewGeoDistanceQuery("location")
+  //  query = query.Distance(ran).Lat(lat).Lon(lon)
 
     searchResult, err := client.Search().
         Index(POST_INDEX).
