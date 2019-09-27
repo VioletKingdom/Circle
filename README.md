@@ -1,6 +1,6 @@
 # Circle
 Circle (Frontend): a Cloud and React based Social Network
- Designed and implemented a geo-based social network web application with React JS.
+  Designed and implemented a geo-based social network web application with React JS.
  Implemented features for users to create and browse posts and support search nearby posts (Ant Design,
 GeoLocation API and Google Map API.)
  Improved the authentication using token based registration/login/logout flow with React Router v4 and
