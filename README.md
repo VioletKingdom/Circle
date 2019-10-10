@@ -20,17 +20,17 @@ Circle (Backend): a Geo-index and Image Recognition based Social Network
 These are the pictures show how the webpages look like.
 You can register, log in and post what you want to post.
 
-![alt text](https://i.ibb.co/10xCKyD/Capture12.jpg)
+![alt text](https://i.imgur.com/8NhcDgs.jpg)
 
-![alt text](https://i.ibb.co/GHhsbxm/Capture8.jpg)
+![alt text](https://i.imgur.com/I1iJBbN.jpg)
 
-![alt text](https://i.ibb.co/mC2txPj/Capture7.jpg)
+![alt text](https://i.imgur.com/BxTVb5G.jpg)
 
-![alt text](https://i.ibb.co/PcpdhL3/Capture9.jpg)
+![alt text](https://i.imgur.com/2lTCMF2.jpg)
 
 
 For the images posts, the webpage can distinguish people faces.
 
-![alt text](https://i.ibb.co/f8S76Qj/Capture10.jpg)
+![alt text](https://i.imgur.com/Lx50WbW.jpg)
 
-![alt text](https://i.ibb.co/VWZGN4Z/Capture11.jpg)
+![alt text](https://i.imgur.com/vT49Dul.jpg)
