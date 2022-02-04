@@ -1,4 +1,4 @@
-# Circle
+# My Own Geo-based "Instagram"
 
 Circle (Frontend): a Cloud and React based Social Network
 
